@@ -1,0 +1,9 @@
+POST http://localhost:5004/notification
+Content-Type: application/json
+
+{
+  "to_email": "mlujan476@gmail.com",
+  "from_email": "admin@cloudneuros.com",
+  "subject": "Test Notification",
+  "content": "This is a test notification from the ed-notification-management service."
+}

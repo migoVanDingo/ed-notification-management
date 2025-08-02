@@ -17,6 +17,9 @@ RUN apt-get update && apt-get install -y \
 ARG PLATFORM_COMMON_TOKEN
 ENV PLATFORM_COMMON_TOKEN=${PLATFORM_COMMON_TOKEN}
 
+ARG SENDGRID_API_KEY
+ENV SENDGRID_API_KEY=${SENDGRID_API_KEY}
+
 # Copy the requirements file directly
 COPY requirements.txt .
 
@@ -27,6 +30,6 @@ RUN pip install --upgrade pip && \
 # Copy application code
 COPY . .
 
-EXPOSE 8000
+EXPOSE 5004
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5004", "--reload"]
