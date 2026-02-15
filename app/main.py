@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 from platform_common.middleware.request_id_middleware import RequestIDMiddleware
 from platform_common.middleware.auth_middleware import AuthMiddleware
@@ -6,8 +8,24 @@ from platform_common.exception_handling.handlers import add_exception_handlers
 from app.api.router.health_check import router as health_router
 from app.api.router.notification_router import router as notification_router
 from strawberry.fastapi import GraphQLRouter
+from app.workers.notification_outbox_worker import start_notification_outbox_worker
 
-app = FastAPI(title="Notification Management API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    worker_task = asyncio.create_task(start_notification_outbox_worker())
+    app.state.notification_outbox_worker_task = worker_task
+    try:
+        yield
+    finally:
+        worker_task.cancel()
+        try:
+            await worker_task
+        except asyncio.CancelledError:
+            pass
+
+
+app = FastAPI(title="Notification Management API", version="1.0.0", lifespan=lifespan)
 
 
 origins = [

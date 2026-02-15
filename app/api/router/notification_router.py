@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from app.api.handler.mailgun_handler import MailgunEmailHandler
 from platform_common.logging.logging import get_logger
 from platform_common.utils.service_response import ServiceResponse
+from platform_common.db.dal.notification_outbox_dal import NotificationOutboxDAL
+from platform_common.db.session import get_session
 from app.api.handler.email_handler import EmailHandler
 from pydantic import BaseModel, EmailStr
 
@@ -48,3 +50,11 @@ async def send_via_mailgun(
     except Exception as e:
         # failure path → still HTTP 200, but success=False in JSON
         return ServiceResponse(success=False, message=str(e))
+
+
+@router.get("/outbox/metrics")
+async def outbox_metrics() -> ServiceResponse:
+    async for session in get_session():
+        data = await NotificationOutboxDAL(session).counts_by_status_and_channel()
+        break
+    return ServiceResponse(message="Outbox metrics", data={"rows": data})
