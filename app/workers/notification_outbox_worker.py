@@ -40,6 +40,18 @@ def _render_email(template_key: Optional[str], payload: dict) -> Tuple[str, str]
             f"You were invited to join {org_name} as {role}.\n\nAccept invitation:\n{accept_url}",
         )
 
+    if key == "org_existing_user_invite_email":
+        org_name = payload.get("organization_name") or "your organization"
+        role = payload.get("role") or "member"
+        inviter_name = payload.get("inviter_name") or "A team admin"
+        return (
+            f"You were invited to join {org_name}",
+            (
+                f"{inviter_name} invited you to join {org_name} as {role}.\n\n"
+                "Sign in to the platform and open Notifications to accept or discard this invite."
+            ),
+        )
+
     if key == "resource_invite_email":
         resource_type = payload.get("resource_type") or "resource"
         resource_name = payload.get("resource_name") or payload.get("resource_id") or "resource"
