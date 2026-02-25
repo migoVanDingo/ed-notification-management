@@ -61,6 +61,34 @@ def _render_email(template_key: Optional[str], payload: dict) -> Tuple[str, str]
             f"You were invited to collaborate on {resource_type} '{resource_name}'.\n\nAccept invitation:\n{accept_url}",
         )
 
+    if key == "resource_new_user_invite_email":
+        inviter_name = payload.get("inviter_name") or "Someone"
+        resource_type = payload.get("resource_type") or "resource"
+        resource_name = payload.get("resource_name") or payload.get("resource_id") or "resource"
+        accept_url = payload.get("accept_url") or ""
+        return (
+            f"{inviter_name} invited you to contribute to {resource_name}",
+            (
+                f"{inviter_name} invited you to contribute to "
+                f"{resource_name} ({resource_type}).\n\n"
+                f"Set your password to continue:\n{accept_url}"
+            ),
+        )
+
+    if key == "resource_existing_user_invite_email":
+        inviter_name = payload.get("inviter_name") or "Someone"
+        resource_type = payload.get("resource_type") or "resource"
+        resource_name = payload.get("resource_name") or payload.get("resource_id") or "resource"
+        login_url = payload.get("login_url") or ""
+        return (
+            f"{inviter_name} invited you to contribute to {resource_name}",
+            (
+                f"{inviter_name} invited you to contribute to "
+                f"{resource_name} ({resource_type}).\n\n"
+                f"Log in to view the resource:\n{login_url}"
+            ),
+        )
+
     if key == "user_invite_email":
         display_name = payload.get("display_name") or "there"
         accept_url = payload.get("accept_url") or ""
